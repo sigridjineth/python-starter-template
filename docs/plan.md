@@ -58,7 +58,7 @@ Purpose: Handle HTTP communication with external Storm Parse API.
   - Test: StormApiClient stores base_url and creates auth headers
   - Implementation: Initialize with URL and Bearer token
 
-- [ ] test_should_upload_document_and_return_job
+- [x] test_should_upload_document_and_return_job
   - Test: upload_document() posts file and returns Job object
   - Implementation: Mock httpx response, parse JSON to Job
 
