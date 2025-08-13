@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
+from typing import List
 
 
 class Job(BaseModel):
@@ -31,3 +32,9 @@ class QueryRequest(BaseModel):
 
 class RetrievedChunk(Chunk):
     score: float
+
+
+class FinalAnswer(BaseModel):
+    query: str
+    generated_answer: str
+    retrieved_context: List[RetrievedChunk]

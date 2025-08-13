@@ -127,3 +127,48 @@ def test_should_inherit_from_chunk():
     
     # RetrievedChunk should be a subclass of Chunk
     assert issubclass(RetrievedChunk, Chunk)
+
+
+def test_should_create_final_answer_with_retrieved_context():
+    from rag_core.models import FinalAnswer, RetrievedChunk
+    
+    chunks = [
+        RetrievedChunk(
+            id="chunk-001",
+            document_id="doc-123",
+            text="First chunk",
+            page_number=1,
+            score=0.95
+        ),
+        RetrievedChunk(
+            id="chunk-002",
+            document_id="doc-123",
+            text="Second chunk",
+            page_number=2,
+            score=0.85
+        )
+    ]
+    
+    answer = FinalAnswer(
+        query="What is the main topic?",
+        generated_answer="The main topic is about testing.",
+        retrieved_context=chunks
+    )
+    
+    assert answer.query == "What is the main topic?"
+    assert answer.generated_answer == "The main topic is about testing."
+    assert len(answer.retrieved_context) == 2
+    assert answer.retrieved_context[0].score == 0.95
+    assert answer.retrieved_context[1].score == 0.85
+
+
+def test_should_accept_empty_context():
+    from rag_core.models import FinalAnswer
+    
+    answer = FinalAnswer(
+        query="Test query",
+        generated_answer="No context available",
+        retrieved_context=[]
+    )
+    
+    assert len(answer.retrieved_context) == 0
