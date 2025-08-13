@@ -44,3 +44,32 @@ def test_should_fail_creating_parsed_page_without_required_fields():
     
     with pytest.raises(ValidationError):
         ParsedPage(content="content")
+
+
+def test_should_create_chunk_with_all_fields():
+    from rag_core.models import Chunk
+    
+    chunk = Chunk(
+        id="chunk-001",
+        document_id="doc-123",
+        text="This is chunk text",
+        page_number=1
+    )
+    
+    assert chunk.id == "chunk-001"
+    assert chunk.document_id == "doc-123"
+    assert chunk.text == "This is chunk text"
+    assert chunk.page_number == 1
+
+
+def test_should_fail_creating_chunk_without_required_fields():
+    from rag_core.models import Chunk
+    
+    with pytest.raises(ValidationError):
+        Chunk()
+    
+    with pytest.raises(ValidationError):
+        Chunk(id="chunk-001", document_id="doc-123", text="text")
+    
+    with pytest.raises(ValidationError):
+        Chunk(id="chunk-001", document_id="doc-123", page_number=1)

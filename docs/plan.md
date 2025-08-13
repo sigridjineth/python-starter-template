@@ -35,7 +35,7 @@ Purpose: Define data models that all other modules will use.
   - Test: ParsedPage has pageNumber (int) and content (str)
   - Implementation: Create ParsedPage model
 
-- [ ] test_should_create_chunk_with_all_fields
+- [x] test_should_create_chunk_with_all_fields
   - Test: Chunk has id, document_id, text, page_number
   - Implementation: Create Chunk model with all fields
 
