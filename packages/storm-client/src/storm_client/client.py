@@ -20,3 +20,16 @@ class StormApiClient:
             response.raise_for_status()
             data = response.json()
             return Job(**data["success"])
+    
+    async def get_job_result(self, job_id: str) -> tuple[Job, Optional[List[ParsedPage]]]:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}/api/v1/parsing/job/{job_id}",
+                headers=self.headers,
+                timeout=30.0
+            )
+        response.raise_for_status()
+        data = response.json()["success"]
+        job = Job(job_id=data["job_id"], state=data["state"])
+        pages = [ParsedPage(**p) for p in data.get("pages", [])] if job.state == "COMPLETED" else None
+        return job, pages

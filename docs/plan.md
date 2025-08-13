@@ -62,11 +62,11 @@ Purpose: Handle HTTP communication with external Storm Parse API.
   - Test: upload_document() posts file and returns Job object
   - Implementation: Mock httpx response, parse JSON to Job
 
-- [ ] test_should_handle_upload_failure_with_proper_exception
+- [x] test_should_handle_upload_failure_with_proper_exception
   - Test: HTTP errors raise appropriate exceptions
   - Implementation: Mock 4xx/5xx responses, test error handling
 
-- [ ] test_should_get_job_result_with_pending_state
+- [x] test_should_get_job_result_with_pending_state
   - Test: get_job_result() returns Job with state="PENDING", no pages
   - Implementation: Mock pending response, return tuple (Job, None)
 
