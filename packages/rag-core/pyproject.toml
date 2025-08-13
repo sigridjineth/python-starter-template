@@ -1,0 +1,22 @@
+[project]
+name = "rag-core"
+version = "0.1.0"
+description = "Core data models for the Storm RAG pipeline"
+readme = "README.md"
+authors = [
+    { name = "sigridjineth", email = "sigrid.jinhyung@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.0.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
