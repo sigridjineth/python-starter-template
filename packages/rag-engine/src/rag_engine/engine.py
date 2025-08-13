@@ -27,3 +27,15 @@ class TxtaiEngine:
         # For now, using a mock to avoid platform issues
         self.embeddings = MockEmbeddings({"path": "sentence-transformers/all-MiniLM-L6-v2", "content": True})
         self.chunks_db: Dict[str, Chunk] = {}
+    
+    def index(self, chunks: List[Chunk]):
+        """Index a list of chunks for semantic search"""
+        # Store chunks in our database
+        self.chunks_db.update({c.id: c for c in chunks})
+        
+        # Convert chunks to format expected by embeddings
+        # Format: [(id, text, metadata), ...]
+        data_to_index = [(c.id, c.text, None) for c in chunks]
+        
+        # Index the data
+        self.embeddings.index(data_to_index)

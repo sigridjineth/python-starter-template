@@ -85,7 +85,7 @@ Purpose: Provide vector indexing and semantic search using txtai.
   - Test: TxtaiEngine initializes with content=True option
   - Implementation: Create embeddings instance in __init__
 
-- [ ] test_should_index_chunks
+- [x] test_should_index_chunks
   - Test: index() accepts List[Chunk] and stores them
   - Implementation: Convert chunks to indexable format, build index
 
