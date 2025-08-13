@@ -26,4 +26,4 @@ test:
 	uv run pytest tests/ -v
 
 run:
-	uv run uvicorn src.app.main:app --reload --host 0.0.0.0 --port 8000
+	uv run --package my-api uvicorn my_api.main:app --reload --host 0.0.0.0 --port 8000

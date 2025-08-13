@@ -9,7 +9,17 @@ dependencies = [
     "pytest>=8.4.1",
     "uvicorn>=0.35.0",
     "httpx>=0.27.0",
+    # Ensure local workspace package is resolvable during tests
+    "my-core",
+    "my-api",
 ]
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+my-core = { workspace = true }
+my-api = { workspace = true }
 
 [tool]
 
