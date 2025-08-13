@@ -39,3 +39,28 @@ class TxtaiEngine:
         
         # Index the data
         self.embeddings.index(data_to_index)
+    
+    def search(self, query: QueryRequest) -> List[RetrievedChunk]:
+        """Search for chunks matching the query"""
+        # Search the embeddings
+        results = self.embeddings.search(query.query, query.top_k)
+        
+        # Convert results to RetrievedChunk objects
+        retrieved_chunks = []
+        for result in results:
+            chunk_id = result["id"]
+            if chunk_id in self.chunks_db:
+                chunk = self.chunks_db[chunk_id]
+                retrieved_chunk = RetrievedChunk(
+                    id=chunk.id,
+                    document_id=chunk.document_id,
+                    text=chunk.text,
+                    page_number=chunk.page_number,
+                    score=result["score"]
+                )
+                retrieved_chunks.append(retrieved_chunk)
+        
+        # Sort by score (descending)
+        retrieved_chunks.sort(key=lambda x: x.score, reverse=True)
+        
+        return retrieved_chunks
