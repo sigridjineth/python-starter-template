@@ -27,3 +27,7 @@ class QueryRequest(BaseModel):
         if v <= 0:
             raise ValueError('top_k must be a positive integer')
         return v
+
+
+class RetrievedChunk(Chunk):
+    score: float

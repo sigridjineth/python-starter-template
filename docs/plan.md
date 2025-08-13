@@ -43,7 +43,7 @@ Purpose: Define data models that all other modules will use.
   - Test: QueryRequest.top_k must be positive integer, default 3
   - Implementation: Add Pydantic validator for top_k field
 
-- [ ] test_should_create_retrieved_chunk_with_score
+- [x] test_should_create_retrieved_chunk_with_score
   - Test: RetrievedChunk extends Chunk with score field
   - Implementation: Create RetrievedChunk model
 

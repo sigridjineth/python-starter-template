@@ -102,3 +102,28 @@ def test_should_fail_creating_query_request_with_invalid_top_k():
     # Should fail without query
     with pytest.raises(ValidationError):
         QueryRequest(top_k=3)
+
+
+def test_should_create_retrieved_chunk_with_score():
+    from rag_core.models import RetrievedChunk
+    
+    chunk = RetrievedChunk(
+        id="chunk-001",
+        document_id="doc-123",
+        text="This is chunk text",
+        page_number=1,
+        score=0.95
+    )
+    
+    assert chunk.id == "chunk-001"
+    assert chunk.document_id == "doc-123"
+    assert chunk.text == "This is chunk text"
+    assert chunk.page_number == 1
+    assert chunk.score == 0.95
+
+
+def test_should_inherit_from_chunk():
+    from rag_core.models import Chunk, RetrievedChunk
+    
+    # RetrievedChunk should be a subclass of Chunk
+    assert issubclass(RetrievedChunk, Chunk)
