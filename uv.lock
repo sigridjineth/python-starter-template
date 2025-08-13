@@ -15,6 +15,7 @@ members = [
     "api-rag-pipeline",
     "rag-core",
     "rag-engine",
+    "rag-service",
     "storm-client",
 ]
 
@@ -821,6 +822,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pytest-mock"
+version = "3.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/71/28/67172c96ba684058a4d24ffe144d64783d2a270d0af0d9e792737bddc75c/pytest_mock-3.14.1.tar.gz", hash = "sha256:159e9edac4c451ce77a5cdb9fc5d1100708d2dd4ba3c3df572f14097351af80e", size = 33241 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b2/05/77b60e520511c53d1c1ca75f1930c7dd8e971d0c4379b7f4b3f9644685ba/pytest_mock-3.14.1-py3-none-any.whl", hash = "sha256:178aefcd11307d874b4cd3100344e7e2d888d9791a6a1d9bfe90fbc1b74fd1d0", size = 9923 },
+]
+
+[[package]]
 name = "pyyaml"
 version = "6.0.2"
 source = { registry = "https://pypi.org/simple" }
@@ -904,6 +917,34 @@ requires-dist = [
     { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.21.0" },
     { name = "rag-core", editable = "packages/rag-core" },
     { name = "txtai", specifier = ">=6.0.0" },
+]
+provides-extras = ["test"]
+
+[[package]]
+name = "rag-service"
+version = "0.1.0"
+source = { editable = "packages/rag-service" }
+dependencies = [
+    { name = "rag-core" },
+    { name = "rag-engine" },
+    { name = "storm-client" },
+]
+
+[package.optional-dependencies]
+test = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-mock" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.21.0" },
+    { name = "pytest-mock", marker = "extra == 'test'", specifier = ">=3.12.0" },
+    { name = "rag-core", editable = "packages/rag-core" },
+    { name = "rag-engine", editable = "packages/rag-engine" },
+    { name = "storm-client", editable = "packages/storm-client" },
 ]
 provides-extras = ["test"]
 
