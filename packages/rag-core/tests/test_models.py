@@ -73,3 +73,32 @@ def test_should_fail_creating_chunk_without_required_fields():
     
     with pytest.raises(ValidationError):
         Chunk(id="chunk-001", document_id="doc-123", page_number=1)
+
+
+def test_should_validate_query_request_top_k_positive():
+    from rag_core.models import QueryRequest
+    
+    # Default value should be 3
+    query1 = QueryRequest(query="test query")
+    assert query1.query == "test query"
+    assert query1.top_k == 3
+    
+    # Explicit positive value
+    query2 = QueryRequest(query="test query", top_k=5)
+    assert query2.top_k == 5
+
+
+def test_should_fail_creating_query_request_with_invalid_top_k():
+    from rag_core.models import QueryRequest
+    
+    # Should fail with negative top_k
+    with pytest.raises(ValidationError):
+        QueryRequest(query="test", top_k=-1)
+    
+    # Should fail with zero top_k
+    with pytest.raises(ValidationError):
+        QueryRequest(query="test", top_k=0)
+    
+    # Should fail without query
+    with pytest.raises(ValidationError):
+        QueryRequest(top_k=3)

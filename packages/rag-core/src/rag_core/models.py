@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 
 class Job(BaseModel):
@@ -16,3 +16,14 @@ class Chunk(BaseModel):
     document_id: str
     text: str
     page_number: int
+
+
+class QueryRequest(BaseModel):
+    query: str
+    top_k: int = Field(default=3, gt=0)
+    
+    @field_validator('top_k')
+    def validate_top_k(cls, v):
+        if v <= 0:
+            raise ValueError('top_k must be a positive integer')
+        return v

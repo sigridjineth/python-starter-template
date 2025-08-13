@@ -39,7 +39,7 @@ Purpose: Define data models that all other modules will use.
   - Test: Chunk has id, document_id, text, page_number
   - Implementation: Create Chunk model with all fields
 
-- [ ] test_should_validate_query_request_top_k_positive
+- [x] test_should_validate_query_request_top_k_positive
   - Test: QueryRequest.top_k must be positive integer, default 3
   - Implementation: Add Pydantic validator for top_k field
 
