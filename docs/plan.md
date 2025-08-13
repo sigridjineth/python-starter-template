@@ -70,11 +70,11 @@ Purpose: Handle HTTP communication with external Storm Parse API.
   - Test: get_job_result() returns Job with state="PENDING", no pages
   - Implementation: Mock pending response, return tuple (Job, None)
 
-- [ ] test_should_get_job_result_with_completed_state_and_pages
+- [x] test_should_get_job_result_with_completed_state_and_pages
   - Test: Completed job returns Job and List[ParsedPage]
   - Implementation: Mock completed response with pages data
 
-- [ ] test_should_handle_timeout_gracefully
+- [x] test_should_handle_timeout_gracefully
   - Test: Long-running requests timeout appropriately
   - Implementation: Add timeout parameter to httpx calls
 
