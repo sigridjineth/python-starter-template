@@ -1,0 +1,20 @@
+[project]
+name = "rag-engine"
+version = "0.1.0"
+description = "Vector indexing and semantic search using txtai"
+readme = "README.md"
+authors = [
+    { name = "sigridjineth", email = "sigrid.jinhyung@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = ["rag-core", "txtai>=6.0.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0"]
+
+[tool.uv.sources]
+rag-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
