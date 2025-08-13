@@ -22,3 +22,25 @@ def test_should_fail_creating_job_without_required_fields():
     
     with pytest.raises(ValidationError):
         Job(state="PENDING")
+
+
+def test_should_create_parsed_page_with_page_number_and_content():
+    from rag_core.models import ParsedPage
+    
+    page = ParsedPage(pageNumber=1, content="This is page content")
+    
+    assert page.pageNumber == 1
+    assert page.content == "This is page content"
+
+
+def test_should_fail_creating_parsed_page_without_required_fields():
+    from rag_core.models import ParsedPage
+    
+    with pytest.raises(ValidationError):
+        ParsedPage()
+    
+    with pytest.raises(ValidationError):
+        ParsedPage(pageNumber=1)
+    
+    with pytest.raises(ValidationError):
+        ParsedPage(content="content")
