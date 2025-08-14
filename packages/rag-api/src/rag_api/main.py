@@ -3,7 +3,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from rag_core.models import QueryRequest, FinalAnswer, Job
 from rag_service.service import RAGService
 from storm_client.client import StormApiClient
-from rag_embedder.embedder import SentenceTransformerEmbedder
+from rag_embedder.embedder import OpenAIEmbedder
 from rag_engine.engine import VicinityEngine
 
 # --- 환경 변수에서 설정 로드 ---
@@ -21,14 +21,14 @@ if not STORM_API_TOKEN:
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 client = StormApiClient(base_url=STORM_API_URL, token=STORM_API_TOKEN)
-embedder = SentenceTransformerEmbedder()
+embedder = OpenAIEmbedder()
 engine = VicinityEngine()
 rag_service = RAGService(client=client, embedder=embedder, engine=engine)
 # ---
 
 app = FastAPI(
     title="Vicinity-based RAG API",
-    description="A modular RAG pipeline using Storm API, Sentence Transformers, and Vicinity.",
+    description="A modular RAG pipeline using Storm API, OpenAI Embeddings, and Vicinity.",
 )
 
 

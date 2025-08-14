@@ -11,7 +11,7 @@
 - 동작하는 uv Workspace (루트 pyproject.toml + packages/*)
 - `rag-core` 패키지: Pydantic 기반 데이터 모델 (Job, Chunk, QueryRequest 등)
 - `storm-client` 패키지: Storm Parse API와의 HTTP 통신 전담
-- `rag-embedder` 패키지: sentence-transformers를 사용한 텍스트 임베딩 전담
+- `rag-embedder` 패키지: OpenAI API를 사용한 텍스트 임베딩 전담
 - `rag-engine` 패키지: vicinity를 사용한 벡터 저장/검색 전담
 - `rag-service` 패키지: 전체 파이프라인 오케스트레이션
 - `rag-api` 패키지: FastAPI 기반 REST API 인터페이스
@@ -35,7 +35,7 @@
 packages/
 ├── rag-core/       # name = "rag-core", build-backend = "uv.backend"
 ├── storm-client/   # name = "storm-client", dependencies = ["rag-core", "httpx"]
-├── rag-embedder/   # name = "rag-embedder", dependencies = ["rag-core", "sentence-transformers"]
+├── rag-embedder/   # name = "rag-embedder", dependencies = ["rag-core", "openai"]
 ├── rag-engine/     # name = "rag-engine", dependencies = ["rag-core", "vicinity[faiss]"]
 ├── rag-service/    # name = "rag-service", dependencies = ["rag-core", "storm-client", "rag-embedder", "rag-engine"]
 └── rag-api/        # name = "rag-api", dependencies = ["rag-core", "rag-service", "fastapi", "uvicorn"]
@@ -59,11 +59,14 @@ packages/
 - Bearer 토큰 인증 지원
 
 ### rag-embedder (텍스트 임베딩)
-- `SentenceTransformerEmbedder` 클래스:
+- `OpenAIEmbedder` 클래스:
   - `embed_chunks(chunks: List[Chunk]) -> Tuple[List[Chunk], np.ndarray]`: 청크 리스트 임베딩
   - `embed_query(query: str) -> np.ndarray`: 쿼리 임베딩
-- 모델: "all-MiniLM-L6-v2" (기본값)
+- 모델: "text-embedding-3-small" (기본값, 1536 차원)
+  - 대안: "text-embedding-3-large" (3072 차원), "text-embedding-ada-002" (1536 차원)
+  - export OPENAI_API_KEY="your-openai-api-key" 필요
 - 벡터 출력: numpy 배열
+- 배치 처리: 최대 2048개 입력 동시 처리
 
 ### rag-engine (벡터 검색)
 - `VicinityEngine` 클래스:
@@ -75,7 +78,7 @@ packages/
 
 ### rag-service (파이프라인 오케스트레이션)
 - `RAGService` 클래스:
-  - 의존성: StormApiClient, SentenceTransformerEmbedder, VicinityEngine
+  - 의존성: StormApiClient, OpenAIEmbedder, VicinityEngine
   - `process_document_in_background(job_id: str, document_id: str)`: 비동기 문서 처리
   - `answer_query(query: QueryRequest) -> FinalAnswer`: 질의 응답
 - 청킹 로직: chunk_size=1000, overlap=100
@@ -220,6 +223,9 @@ make format
 # Storm API 설정 (선택사항)
 STORM_API_URL=https://live-storm-apis-parse-router.sionic.im
 STORM_API_TOKEN=your-token-here  # 미설정시 데모 토큰 사용
+
+# OpenAI API 설정 (필수)
+OPENAI_API_KEY=your-openai-api-key  # OpenAI API 키
 ```
 
 ## API 사용 예시
@@ -251,6 +257,7 @@ curl -X POST "http://localhost:8000/query" \
 - FAISS 백엔드 필요: `vicinity[faiss]`
 - numpy 버전 호환성 확인
 
-### 임베딩 모델 다운로드
-- 첫 실행시 sentence-transformers 모델 자동 다운로드
-- 오프라인 환경에서는 사전 다운로드 필요
+### OpenAI API 키
+- OPENAI_API_KEY 환경 변수 필수
+- https://platform.openai.com/api-keys 에서 발급
+- 임베딩 API 사용량에 따른 과금 발생

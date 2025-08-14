@@ -3,7 +3,7 @@ import uuid
 from typing import List
 from rag_core.models import Chunk, QueryRequest, FinalAnswer, ParsedPage
 from storm_client.client import StormApiClient
-from rag_embedder.embedder import SentenceTransformerEmbedder
+from rag_embedder.embedder import OpenAIEmbedder
 from rag_engine.engine import VicinityEngine
 
 
@@ -13,7 +13,7 @@ class RAGService:
     def __init__(
         self,
         client: StormApiClient,
-        embedder: SentenceTransformerEmbedder,
+        embedder: OpenAIEmbedder,
         engine: VicinityEngine,
     ):
         self.client = client

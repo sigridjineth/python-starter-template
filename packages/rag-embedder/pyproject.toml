@@ -1,7 +1,7 @@
 [project]
 name = "rag-embedder"
 version = "0.1.0"
-description = "Handles text to vector embedding using sentence-transformers"
+description = "Handles text to vector embedding using OpenAI"
 readme = "README.md"
 authors = [
     { name = "sigridjineth", email = "sigrid.jinhyung@gmail.com" }
@@ -9,8 +9,7 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
     "rag-core",
-    "sentence-transformers>=2.7.0",
-    "torch>=2.2.0",
+    "openai>=1.0.0",
     "numpy"
 ]
 
@@ -21,5 +20,5 @@ test = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0"]
 rag-core = { workspace = true }
 
 [build-system]
-requires = ["uv>=0.2.0"]
-build-backend = "uv.backend"
+requires = ["uv_build>=0.0.2,<1.0.0"]
+build-backend = "uv_build"

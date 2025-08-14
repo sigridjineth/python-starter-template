@@ -1,8 +1,9 @@
 """Integration tests for the complete RAG pipeline"""
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 import tempfile
 import os
+import numpy as np
 
 
 @pytest.mark.asyncio
@@ -11,14 +12,24 @@ async def test_end_to_end_pdf_upload_poll_and_query():
     from rag_api.main import app
     from rag_service.service import RAGService
     from storm_client.client import StormApiClient
-    from rag_engine.engine import TxtaiEngine
-    from rag_core.models import Job, ParsedPage, QueryRequest
+    from rag_embedder.embedder import OpenAIEmbedder
+    from rag_engine.engine import VicinityEngine
+    from rag_core.models import Job, ParsedPage, QueryRequest, Chunk
     from fastapi.testclient import TestClient
     
     # Create services
     client = StormApiClient(base_url="http://test", token="test")
-    engine = TxtaiEngine()
-    service = RAGService(client=client, engine=engine)
+    
+    # Mock OpenAI embedder to avoid API calls
+    embedder = MagicMock(spec=OpenAIEmbedder)
+    embedder.embed_chunks = MagicMock(return_value=(
+        [Chunk(id="1", document_id="doc-123", text="Python is a programming language", page_number=1)],
+        np.array([[0.1, 0.2, 0.3]], dtype=np.float32)
+    ))
+    embedder.embed_query = MagicMock(return_value=np.array([0.1, 0.2, 0.3], dtype=np.float32))
+    
+    engine = VicinityEngine()
+    service = RAGService(client=client, embedder=embedder, engine=engine)
     
     # Mock the Storm API responses
     mock_upload_response = Job(job_id="job-123", state="PENDING")
@@ -53,8 +64,11 @@ def test_module_imports():
     # Storm client
     from storm_client.client import StormApiClient
     
+    # RAG embedder
+    from rag_embedder.embedder import OpenAIEmbedder
+    
     # RAG engine
-    from rag_engine.engine import TxtaiEngine
+    from rag_engine.engine import VicinityEngine
     
     # RAG service
     from rag_service.service import RAGService
@@ -65,7 +79,8 @@ def test_module_imports():
     # Verify all imports succeeded
     assert Job is not None
     assert StormApiClient is not None
-    assert TxtaiEngine is not None
+    assert OpenAIEmbedder is not None
+    assert VicinityEngine is not None
     assert RAGService is not None
     assert app is not None
 

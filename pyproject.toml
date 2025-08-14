@@ -4,7 +4,16 @@ version = "0.1.0"
 description = "External API driven RAG pipeline with multi-module architecture"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pytest>=8.4.1",
+    "pytest-asyncio>=0.21.0",
+    "rag-core",
+    "storm-client",
+    "rag-embedder",
+    "rag-engine",
+    "rag-service",
+    "rag-api",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -28,3 +37,11 @@ exclude = ["tests", "test_*.py"]
 
 [tool.uv.workspace]
 members = ["packages/*"]
+
+[tool.uv.sources]
+rag-core = { workspace = true }
+storm-client = { workspace = true }
+rag-embedder = { workspace = true }
+rag-engine = { workspace = true }
+rag-service = { workspace = true }
+rag-api = { workspace = true }

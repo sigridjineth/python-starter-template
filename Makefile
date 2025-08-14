@@ -39,21 +39,25 @@ test:
 	@echo "===================="
 	@echo ""
 	@echo "📦 Testing rag-core..."
-	-@cd packages/rag-core && uv sync --extra test >/dev/null 2>&1 && uv run pytest -v
+	-@cd packages/rag-core && uv sync --extra test && uv run pytest -v
 	@echo ""
 	@echo "📦 Testing storm-client..."
-	-@cd packages/storm-client && uv sync --extra test >/dev/null 2>&1 && uv run pytest -v
+	-@cd packages/storm-client && uv sync --extra test && uv run pytest -v
+	@echo ""
+	@echo "📦 Testing rag-embedder..."
+	-@cd packages/rag-embedder && uv sync --extra test && uv run pytest -v
 	@echo ""
 	@echo "📦 Testing rag-engine..."
-	-@cd packages/rag-engine && uv sync --extra test >/dev/null 2>&1 && uv run pytest -v
+	-@cd packages/rag-engine && uv sync --extra test && uv run pytest -v
 	@echo ""
 	@echo "📦 Testing rag-service..."
-	-@cd packages/rag-service && uv sync --extra test >/dev/null 2>&1 && uv run pytest -v
+	-@cd packages/rag-service && uv sync --extra test && uv run pytest -v
 	@echo ""
 	@echo "📦 Testing rag-api..."
-	-@cd packages/rag-api && uv sync --extra test >/dev/null 2>&1 && uv run pytest -v
+	-@cd packages/rag-api && uv sync --extra test && uv run pytest -v
 	@echo ""
 	@echo "📦 Testing integration..."
+	@uv sync
 	-@uv run pytest tests/ -v
 
 run:

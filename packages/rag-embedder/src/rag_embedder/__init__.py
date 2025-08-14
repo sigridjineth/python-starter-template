@@ -1,5 +1,5 @@
-"""RAG Embedder - Text to vector embedding using sentence-transformers"""
+"""RAG Embedder - Text to vector embedding using OpenAI"""
 
-from rag_embedder.embedder import SentenceTransformerEmbedder
+from rag_embedder.embedder import OpenAIEmbedder
 
-__all__ = ["SentenceTransformerEmbedder"]
+__all__ = ["OpenAIEmbedder"]
