@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, patch
 
 # Set dummy environment variables for testing
 os.environ["OPENAI_API_KEY"] = "test-key"
-os.environ["STORM_API_TOKEN"] = "test-token"
 
 @pytest.fixture(autouse=True)
 def mock_openai_embedder(monkeypatch):

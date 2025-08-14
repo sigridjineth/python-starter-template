@@ -1,14 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 import io
+from rag_api.main import app, rag_service
+from rag_core.models import Job, FinalAnswer, RetrievedChunk
 
 
 def test_should_upload_pdf_and_return_job_immediately(mocker):
-    from rag_api.main import app, rag_service
-    from rag_core.models import Job
-    
-    # Mock the service's client
     mock_upload_response = Job(job_id="job-123", state="PENDING")
     mocker.patch.object(rag_service.client, 'upload_document', 
                        new_callable=AsyncMock, return_value=mock_upload_response)
@@ -29,51 +27,39 @@ def test_should_upload_pdf_and_return_job_immediately(mocker):
     )
     
     # Verify
-    assert response.status_code == 200
+    assert response.status_code == 202
     data = response.json()
     assert data["job_id"] == "job-123"
     assert data["state"] == "PENDING"
 
 
 def test_should_trigger_background_processing_on_upload(mocker):
-    from rag_api.main import app, rag_service
-    from rag_core.models import Job
-    
-    # Mock the service's client
     mock_upload_response = Job(job_id="job-123", state="PENDING")
     mocker.patch.object(rag_service.client, 'upload_document', 
                        new_callable=AsyncMock, return_value=mock_upload_response)
     
-    # Mock and spy on the background task
-    mock_process = mocker.patch.object(rag_service, 'process_document_in_background', 
+    mock_process = mocker.patch.object(rag_service, 'process_document_in_background',
                                       new_callable=AsyncMock)
     
     client = TestClient(app)
     
-    # Create a test PDF file
     pdf_content = b"PDF test content"
     file = io.BytesIO(pdf_content)
     
-    # Test
     response = client.post(
         "/ingest",
         files={"file": ("test.pdf", file, "application/pdf")}
     )
     
-    # Verify
-    assert response.status_code == 200
-    # Verify background task was scheduled
-    # Note: In TestClient, background tasks run synchronously
+    assert response.status_code == 202
     mock_process.assert_called_once()
     args = mock_process.call_args[0]
-    assert args[0] == "job-123"  # job_id
-    assert len(args[1]) > 0  # document_id (UUID)
+
+    assert args[0] == "job-123"
+    assert len(args[1]) > 0
 
 
 def test_should_get_job_status_by_id():
-    from rag_api.main import app, rag_service
-    
-    # Set up job state
     rag_service.jobs["job-123"] = "PROCESSING"
     
     client = TestClient(app)
@@ -89,8 +75,6 @@ def test_should_get_job_status_by_id():
 
 
 def test_should_return_404_for_unknown_job_id():
-    from rag_api.main import app, rag_service
-    
     # Clear jobs
     rag_service.jobs.clear()
     
@@ -106,9 +90,6 @@ def test_should_return_404_for_unknown_job_id():
 
 @pytest.mark.asyncio
 async def test_should_query_via_post_endpoint(mocker):
-    from rag_api.main import app, rag_service
-    from rag_core.models import FinalAnswer, RetrievedChunk
-    
     # Mock the answer_query method
     mock_answer = FinalAnswer(
         query="What is Python?",
@@ -144,8 +125,6 @@ async def test_should_query_via_post_endpoint(mocker):
 
 
 def test_should_return_422_for_invalid_query_request():
-    from rag_api.main import app
-    
     client = TestClient(app)
     
     # Test with missing query field

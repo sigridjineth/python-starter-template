@@ -31,11 +31,19 @@ class VicinityEngine:
         if self.vicinity_instance is None:
             return []
 
-        # query()는 (item, score) 튜플의 리스트를 반환합니다.
-        # item은 build_index 시점에 전달했던 원본 Chunk 객체입니다.
-        results = self.vicinity_instance.query(query_vector.astype(np.float32), k=top_k)
+        # query()는 리스트의 리스트를 반환합니다.
+        # 외부 리스트는 쿼리별, 내부 리스트는 (item, score) 튜플들입니다.
+        results_list = self.vicinity_instance.query(
+            query_vector.astype(np.float32), k=top_k
+        )
+
+        if not results_list or not results_list[0]:
+            return []
+
+        # 첫 번째 쿼리의 결과만 사용 (단일 쿼리이므로)
+        results = results_list[0]
 
         return [
-            RetrievedChunk(**chunk.model_dump(), score=score)
+            RetrievedChunk(**chunk.model_dump(), score=float(score))
             for chunk, score in results
         ]

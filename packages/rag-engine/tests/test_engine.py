@@ -1,25 +1,22 @@
 import pytest
-from rag_core.models import Chunk, RetrievedChunk
+import numpy as np
+from rag_core.models import Chunk, RetrievedChunk, QueryRequest
 
 
-def test_should_initialize_txtai_embeddings():
-    from rag_engine.engine import TxtaiEngine
+def test_should_initialize_vicinity_engine():
+    from rag_engine.engine import VicinityEngine
     
-    engine = TxtaiEngine()
+    engine = VicinityEngine()
     
     # Verify engine is initialized
     assert engine is not None
-    assert hasattr(engine, 'embeddings')
-    
-    # Verify embeddings is configured with content=True
-    # This enables storing the original text content
-    assert engine.embeddings.config.get("content") is True
+    assert engine.vicinity_instance is None  # Not built yet
 
 
-def test_should_index_chunks():
-    from rag_engine.engine import TxtaiEngine
+def test_should_build_index_with_chunks_and_vectors():
+    from rag_engine.engine import VicinityEngine
     
-    engine = TxtaiEngine()
+    engine = VicinityEngine()
     
     # Create test chunks
     chunks = [
@@ -43,24 +40,20 @@ def test_should_index_chunks():
         )
     ]
     
-    # Index the chunks
-    engine.index(chunks)
+    # Create mock vectors (normally from embedder)
+    vectors = np.random.rand(3, 1536).astype(np.float32)
     
-    # Verify chunks are stored
-    assert len(engine.chunks_db) == 3
-    assert "chunk-001" in engine.chunks_db
-    assert "chunk-002" in engine.chunks_db
-    assert "chunk-003" in engine.chunks_db
+    # Build the index
+    engine.build_index(chunks, vectors)
     
-    # Verify embeddings has indexed data
-    assert len(engine.embeddings.data) == 3
+    # Verify index is built
+    assert engine.vicinity_instance is not None
 
 
-def test_should_search_by_query_text():
-    from rag_engine.engine import TxtaiEngine
-    from rag_core.models import QueryRequest
+def test_should_search_by_query_vector():
+    from rag_engine.engine import VicinityEngine
     
-    engine = TxtaiEngine()
+    engine = VicinityEngine()
     
     # Create and index test chunks
     chunks = [
@@ -83,27 +76,34 @@ def test_should_search_by_query_text():
             page_number=1
         )
     ]
-    engine.index(chunks)
     
-    # Search for "python programming"
-    query = QueryRequest(query="python programming", top_k=2)
-    results = engine.search(query)
+    # Create mock vectors with controlled similarity
+    vectors = np.array([
+        [1.0, 0.0, 0.0],  # chunk-001
+        [0.0, 1.0, 0.0],  # chunk-002
+        [0.0, 0.0, 1.0],  # chunk-003
+    ], dtype=np.float32)
+    
+    engine.build_index(chunks, vectors)
+    
+    # Search with query vector similar to first chunk
+    query_vector = np.array([0.9, 0.1, 0.0], dtype=np.float32)
+    results = engine.search(query_vector, top_k=2)
     
     # Verify results
     assert len(results) == 2  # Should return top_k results
     assert all(isinstance(r, RetrievedChunk) for r in results)
     
-    # First result should be chunk-001 (contains both "python" and "programming")
+    # First result should be chunk-001 (most similar to query vector)
     assert results[0].id == "chunk-001"
     assert results[0].score > 0
     assert results[0].text == chunks[0].text
 
 
 def test_should_return_top_k_results_with_scores():
-    from rag_engine.engine import TxtaiEngine
-    from rag_core.models import QueryRequest
+    from rag_engine.engine import VicinityEngine
     
-    engine = TxtaiEngine()
+    engine = VicinityEngine()
     
     # Create and index more chunks
     chunks = [
@@ -111,23 +111,23 @@ def test_should_return_top_k_results_with_scores():
               text=f"Text about topic {i}", page_number=i)
         for i in range(10)
     ]
-    chunks[0].text = "Python programming is awesome"
-    chunks[1].text = "Python is great for data science"
-    chunks[2].text = "Python web development with Django"
     
-    engine.index(chunks)
+    # Create random vectors
+    vectors = np.random.rand(10, 128).astype(np.float32)
+    
+    engine.build_index(chunks, vectors)
     
     # Search with top_k=3
-    query = QueryRequest(query="Python", top_k=3)
-    results = engine.search(query)
+    query_vector = np.random.rand(128).astype(np.float32)
+    results = engine.search(query_vector, top_k=3)
     
     # Should return exactly 3 results
     assert len(results) == 3
     
     # All results should have scores
     for result in results:
-        assert result.score >= 0
-        assert result.score <= 1.0
+        assert result.score >= 0  # Vicinity returns non-negative scores
+        assert isinstance(result.score, float)
     
     # Results should be sorted by score (descending)
     scores = [r.score for r in results]
@@ -135,14 +135,13 @@ def test_should_return_top_k_results_with_scores():
 
 
 def test_should_handle_empty_index_search():
-    from rag_engine.engine import TxtaiEngine
-    from rag_core.models import QueryRequest
+    from rag_engine.engine import VicinityEngine
     
-    engine = TxtaiEngine()
+    engine = VicinityEngine()
     
-    # Search without indexing anything
-    query = QueryRequest(query="Python programming")
-    results = engine.search(query)
+    # Search without building index
+    query_vector = np.random.rand(128).astype(np.float32)
+    results = engine.search(query_vector, top_k=5)
     
     # Should return empty list
     assert results == []

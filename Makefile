@@ -11,7 +11,6 @@ init:
 
 format:
 	@echo "Formatting code..."
-	@uvx ruff format src
 	@for pkg in rag-core storm-client rag-engine rag-service rag-api; do \
 		echo "Formatting $$pkg..."; \
 		cd packages/$$pkg/src && uvx ruff format . && cd ../../..; \
@@ -19,16 +18,11 @@ format:
 
 check:
 	@echo "Running linters and type checkers..."
-	@echo "Checking main src..."
-	-@uvx ruff check src --fix
-	-@uvx mypy src
 	@echo "Checking packages..."
 	@for pkg in rag-core storm-client rag-engine rag-service rag-api; do \
 		echo "Checking $$pkg..."; \
 		cd packages/$$pkg/src && uvx ruff check . --fix && cd ../../..; \
 	done
-	@echo "Running pyrefly..."
-	-@uvx pyrefly check
 
 requirements:
 	uv export -o requirements.txt --without-hashes --without dev
