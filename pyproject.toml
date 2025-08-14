@@ -17,8 +17,8 @@ dev = [
 [tool]
 
 [tool.pyrefly]
-project-includes = ["**/*"]
-project-excludes = ["**/*venv/**/*", "**/tests/**/*", "**/test_*.py"]
+project-includes = ["src/**/*"]
+project-excludes = ["**/*venv/**/*", "**/tests/**/*", "**/test_*.py", "packages/**/*"]
 
 [tool.mypy]
 exclude = ["tests", "test_*.py"]

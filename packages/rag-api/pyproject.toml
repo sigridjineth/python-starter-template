@@ -17,8 +17,8 @@ rag-core = { workspace = true }
 rag-service = { workspace = true }
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv>=0.2.0"]
+build-backend = "uv.backend"
 
 [dependency-groups]
 dev = [

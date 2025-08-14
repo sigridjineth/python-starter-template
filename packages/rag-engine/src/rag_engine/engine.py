@@ -1,71 +1,41 @@
-from typing import List, Dict
-from rag_core.models import Chunk, QueryRequest, RetrievedChunk
+import numpy as np
+from typing import List
+from vicinity import Vicinity, Backend, Metric
+from rag_core.models import Chunk, RetrievedChunk
 
 
-class MockEmbeddings:
-    """Mock embeddings for testing without requiring heavy dependencies"""
+class VicinityEngine:
+    """Vicinity를 사용하여 벡터를 저장하고 검색하는 책임을 지는 클래스"""
 
-    def __init__(self, config: dict):
-        self.config = config
-        self.data = []
-
-    def index(self, data):
-        self.data = data
-
-    def search(self, query: str, limit: int):
-        # Simple mock search - return top results based on string matching
-        results = []
-        for i, (id, text, _) in enumerate(self.data[:limit]):
-            # Simple relevance score based on whether query words appear in text
-            score = sum(
-                1 for word in query.lower().split() if word in text.lower()
-            ) / len(query.split())
-            results.append({"id": id, "score": score})
-        return results
-
-
-class TxtaiEngine:
     def __init__(self):
-        # In production, this would use txtai.embeddings.Embeddings
-        # For now, using a mock to avoid platform issues
-        self.embeddings = MockEmbeddings(
-            {"path": "sentence-transformers/all-MiniLM-L6-v2", "content": True}
+        self.vicinity_instance: Vicinity | None = None
+
+    def build_index(self, chunks: List[Chunk], vectors: np.ndarray):
+        """계산된 벡터로 vicinity 인덱스를 구축합니다."""
+        if vectors.size == 0:
+            print("No vectors to index.")
+            return
+
+        print(f"Building index with {len(chunks)} chunks using FAISS backend...")
+        # from_vectors_and_items는 벡터와 해당 벡터의 원본 아이템을 받아 인덱스를 생성합니다.
+        self.vicinity_instance = Vicinity.from_vectors_and_items(
+            vectors=vectors.astype(np.float32),  # FAISS는 float32를 요구합니다.
+            items=chunks,
+            backend_type=Backend.FAISS,
+            metric=Metric.COSINE,
         )
-        self.chunks_db: Dict[str, Chunk] = {}
+        print("Index build complete.")
 
-    def index(self, chunks: List[Chunk]):
-        """Index a list of chunks for semantic search"""
-        # Store chunks in our database
-        self.chunks_db.update({c.id: c for c in chunks})
+    def search(self, query_vector: np.ndarray, top_k: int) -> List[RetrievedChunk]:
+        """쿼리 벡터로 가장 유사한 청크를 검색합니다."""
+        if self.vicinity_instance is None:
+            return []
 
-        # Convert chunks to format expected by embeddings
-        # Format: [(id, text, metadata), ...]
-        data_to_index = [(c.id, c.text, None) for c in chunks]
+        # query()는 (item, score) 튜플의 리스트를 반환합니다.
+        # item은 build_index 시점에 전달했던 원본 Chunk 객체입니다.
+        results = self.vicinity_instance.query(query_vector.astype(np.float32), k=top_k)
 
-        # Index the data
-        self.embeddings.index(data_to_index)
-
-    def search(self, query: QueryRequest) -> List[RetrievedChunk]:
-        """Search for chunks matching the query"""
-        # Search the embeddings
-        results = self.embeddings.search(query.query, query.top_k)
-
-        # Convert results to RetrievedChunk objects
-        retrieved_chunks = []
-        for result in results:
-            chunk_id = result["id"]
-            if chunk_id in self.chunks_db:
-                chunk = self.chunks_db[chunk_id]
-                retrieved_chunk = RetrievedChunk(
-                    id=chunk.id,
-                    document_id=chunk.document_id,
-                    text=chunk.text,
-                    page_number=chunk.page_number,
-                    score=result["score"],
-                )
-                retrieved_chunks.append(retrieved_chunk)
-
-        # Sort by score (descending)
-        retrieved_chunks.sort(key=lambda x: x.score, reverse=True)
-
-        return retrieved_chunks
+        return [
+            RetrievedChunk(**chunk.model_dump(), score=score)
+            for chunk, score in results
+        ]

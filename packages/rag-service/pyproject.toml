@@ -7,7 +7,7 @@ authors = [
     { name = "sigridjineth", email = "sigrid.jinhyung@gmail.com" }
 ]
 requires-python = ">=3.11"
-dependencies = ["rag-core", "storm-client", "rag-engine"]
+dependencies = ["rag-core", "storm-client", "rag-embedder", "rag-engine"]
 
 [project.optional-dependencies]
 test = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0", "pytest-mock>=3.12.0"]
@@ -15,8 +15,9 @@ test = ["pytest>=7.0.0", "pytest-asyncio>=0.21.0", "pytest-mock>=3.12.0"]
 [tool.uv.sources]
 rag-core = { workspace = true }
 storm-client = { workspace = true }
+rag-embedder = { workspace = true }
 rag-engine = { workspace = true }
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv>=0.2.0"]
+build-backend = "uv.backend"
